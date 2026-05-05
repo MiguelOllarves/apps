@@ -1,0 +1,309 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id                    String                 @id @default(uuid())
+  name                  String
+  slug                  String?                @unique
+  domain                String?                @unique
+  logo                  String?
+  rif                   String?
+  address               String?
+  phone                 String?
+  instagram             String?
+  facebook              String?
+  whatsapp              String?
+  coverImage            String?
+  primaryColor          String?                @default("#e11d48")
+  bannerImage           String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  auditLogs             AuditLog[]
+  categories            Category[]
+  currencies            Currency[]
+  exchangeRates         ExchangeRate[]
+  customers             Customer[]
+  inventoryTransactions InventoryTransaction[]
+  menuItems             MenuItem[]
+  orders                Order[]
+  rawMaterials          RawMaterial[]
+  recipes               Recipe[]
+  users                 User[]
+}
+
+model ExchangeRate {
+  id        String   @id @default(uuid())
+  tenantId  String
+  currency  String // BS, USDT, EUR
+  rate      Float    // Rate relative to base currency (USD)
+  source    String   @default("BCV")
+  updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, currency])
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tenantId     String
+  notes        String?
+  phone        String?
+  orders       Order[]
+  deliveries   Order[]  @relation("OrderDelivery")
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model Currency {
+  id             String     @id @default(uuid())
+  code           String
+  name           String     @default("")
+  symbol         String     @default("")
+  exchangeRate   Float
+  isBaseCurrency Boolean    @default(false)
+  updatedAt      DateTime   @updatedAt
+  tenantId       String
+  tenant         Tenant     @relation(fields: [tenantId], references: [id])
+  menuItems      MenuItem[]
+  orders         Order[]
+
+  @@unique([code, tenantId])
+  @@index([tenantId])
+}
+
+model Category {
+  id           String        @id @default(uuid())
+  name         String
+  type         CategoryType
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  menuItems    MenuItem[]
+  rawMaterials RawMaterial[]
+
+  @@index([tenantId])
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String
+  email     String?
+  address   String?
+  tenantId  String
+  orders    Order[]
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([phone, tenantId])
+  @@index([tenantId, phone])
+}
+
+model RawMaterial {
+  id                    String                 @id @default(uuid())
+  name                  String
+  unit                  UnitType
+  currentStock          Float
+  minStockAlert         Float
+  baseCost              Float
+  replacementCost       Float
+  yieldPercentage       Float
+  shrinkagePercentage   Float
+  categoryId            String
+  updatedAt             DateTime               @updatedAt
+  tenantId              String
+  inventoryTransactions InventoryTransaction[]
+  category              Category               @relation(fields: [categoryId], references: [id])
+  tenant                Tenant                 @relation(fields: [tenantId], references: [id])
+  recipeIngredients     RecipeIngredient[]
+
+  @@index([tenantId, categoryId])
+}
+
+model Recipe {
+  id                String             @id @default(uuid())
+  name              String
+  description       String?
+  type              RecipeType
+  genericCost       Float              @default(0)
+  nutritionalInfo   String?
+  imageUrl          String?
+  tenantId          String
+  menuItem          MenuItem?
+  tenant            Tenant             @relation(fields: [tenantId], references: [id])
+  ingredients       RecipeIngredient[] @relation("RecipeToIngredients")
+  usedInIngredients RecipeIngredient[] @relation("SubRecipeToIngredients")
+
+  @@index([tenantId])
+}
+
+model RecipeIngredient {
+  id            String       @id @default(uuid())
+  recipeId      String
+  rawMaterialId String?
+  subRecipeId   String?
+  quantity      Float
+  unit          String
+  rawMaterial   RawMaterial? @relation(fields: [rawMaterialId], references: [id])
+  recipe        Recipe       @relation("RecipeToIngredients", fields: [recipeId], references: [id])
+  subRecipe     Recipe?      @relation("SubRecipeToIngredients", fields: [subRecipeId], references: [id])
+
+  @@index([recipeId, rawMaterialId, subRecipeId])
+}
+
+model MenuItem {
+  id          String      @id @default(uuid())
+  recipeId    String      @unique
+  categoryId  String
+  price       Float
+  currencyId  String
+  isAvailable Boolean     @default(true)
+  tenantId    String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  currency    Currency    @relation(fields: [currencyId], references: [id])
+  recipe      Recipe      @relation(fields: [recipeId], references: [id])
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  orderItems  OrderItem[]
+
+  @@index([tenantId, categoryId, currencyId])
+}
+
+model Order {
+  id                    String      @id @default(uuid())
+  userId                String?
+  customerId            String?
+  status                OrderStatus @default(PENDING)
+  type                  OrderType
+  tableNumber           String?
+  totalAmount           Float
+  currencyId            String
+  paymentMethod         String?
+  paymentCurrencyId     String?
+  exchangeRateAtPayment Float?
+  paymentProofUrl       String?
+  deliveryUserId        String?
+  deliveryNotes         String?
+  clientLocation        String?
+  createdAt             DateTime    @default(now())
+  tenantId              String
+  currency              Currency    @relation(fields: [currencyId], references: [id])
+  tenant                Tenant      @relation(fields: [tenantId], references: [id])
+  user                  User?       @relation(fields: [userId], references: [id])
+  customer              Customer?   @relation(fields: [customerId], references: [id])
+  deliveryUser          User?       @relation("OrderDelivery", fields: [deliveryUserId], references: [id])
+  items                 OrderItem[]
+
+  @@index([tenantId, status, createdAt])
+}
+
+model OrderItem {
+  id         String   @id @default(uuid())
+  orderId    String
+  menuItemId String
+  quantity   Float
+  unitPrice  Float
+  subTotal   Float
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+
+  @@index([orderId, menuItemId])
+}
+
+model InventoryTransaction {
+  id                String          @id @default(uuid())
+  rawMaterialId     String
+  type              TransactionType
+  quantityChanged   Float
+  costAtTransaction Float
+  referenceId       String?
+  createdAt         DateTime        @default(now())
+  tenantId          String
+  rawMaterial       RawMaterial     @relation(fields: [rawMaterialId], references: [id])
+  tenant            Tenant          @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, rawMaterialId, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String
+  oldValue  Json?
+  newValue  Json?
+  createdAt DateTime @default(now())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, createdAt])
+}
+
+enum Role {
+  ADMIN
+  WAREHOUSE
+  KITCHEN
+  WAITER
+  DELIVERY
+  CLIENT
+}
+
+enum CategoryType {
+  RAW_MATERIAL
+  MENU_ITEM
+}
+
+enum UnitType {
+  KG
+  G
+  L
+  ML
+  UNIT
+  LB
+  OZ
+  OZ_FL
+  GAL
+  PACK
+  DOZEN
+  BOX
+}
+
+enum RecipeType {
+  MOTHER_RECIPE
+  SUB_PRODUCT
+  FINAL_PRODUCT
+}
+
+enum OrderStatus {
+  PENDING
+  KITCHEN
+  READY
+  DELIVERED
+  CANCELLED
+  SHIPPED
+}
+
+enum OrderType {
+  DINE_IN
+  DELIVERY
+  TAKEOUT
+}
+
+enum TransactionType {
+  PURCHASE
+  SALE
+  ADJUSTMENT
+  SHRINKAGE
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Nexus Gastro ERP",
+  "short_name": "NexusGastro",
+  "description": "SaaS ERP/CRM Omnichannel for Hospitality",
+  "start_url": "/login",
+  "display": "standalone",
+  "background_color": "#1E1E2D",
+  "theme_color": "#666CFF",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
