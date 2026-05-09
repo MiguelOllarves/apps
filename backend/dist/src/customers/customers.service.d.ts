@@ -70,8 +70,8 @@ export declare class CustomersService {
                             name: string;
                             tenantId: string;
                             type: import("@prisma/client").$Enums.RecipeType;
-                            imageUrl: string | null;
                             description: string | null;
+                            imageUrl: string | null;
                             genericCost: number;
                             nutritionalInfo: string | null;
                         };
@@ -133,8 +133,8 @@ export declare class CustomersService {
                         name: string;
                         tenantId: string;
                         type: import("@prisma/client").$Enums.RecipeType;
-                        imageUrl: string | null;
                         description: string | null;
+                        imageUrl: string | null;
                         genericCost: number;
                         nutritionalInfo: string | null;
                     };

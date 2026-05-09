@@ -36,6 +36,7 @@ __decorate([
 ], RecipeIngredientDto.prototype, "unit", void 0);
 class CreateRecipeDto {
     name;
+    description;
     price;
     categoryId;
     currencyId;
@@ -48,6 +49,11 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateRecipeDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateRecipeDto.prototype, "description", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.Min)(0),

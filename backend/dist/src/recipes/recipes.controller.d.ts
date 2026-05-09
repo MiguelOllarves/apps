@@ -6,17 +6,19 @@ export declare class RecipesController {
     findAll(tenantId: string): Promise<({
         menuItem: {
             id: string;
-            categoryId: string;
             tenantId: string;
+            recipeId: string;
+            categoryId: string;
             price: number;
             currencyId: string;
-            recipeId: string;
             isAvailable: boolean;
         } | null;
         ingredients: ({
             rawMaterial: {
                 id: string;
                 name: string;
+                tenantId: string;
+                categoryId: string;
                 unit: import("@prisma/client").$Enums.UnitType;
                 currentStock: number;
                 minStockAlert: number;
@@ -24,43 +26,43 @@ export declare class RecipesController {
                 replacementCost: number;
                 yieldPercentage: number;
                 shrinkagePercentage: number;
-                categoryId: string;
                 updatedAt: Date;
-                tenantId: string;
             } | null;
             subRecipe: {
                 id: string;
                 name: string;
-                tenantId: string;
-                type: import("@prisma/client").$Enums.RecipeType;
-                imageUrl: string | null;
                 description: string | null;
+                type: import("@prisma/client").$Enums.RecipeType;
                 genericCost: number;
                 nutritionalInfo: string | null;
+                imageUrl: string | null;
+                tenantId: string;
             } | null;
         } & {
             id: string;
-            unit: string;
-            rawMaterialId: string | null;
-            quantity: number;
             recipeId: string;
+            rawMaterialId: string | null;
             subRecipeId: string | null;
+            quantity: number;
+            unit: string;
         })[];
     } & {
         id: string;
         name: string;
-        tenantId: string;
-        type: import("@prisma/client").$Enums.RecipeType;
-        imageUrl: string | null;
         description: string | null;
+        type: import("@prisma/client").$Enums.RecipeType;
         genericCost: number;
         nutritionalInfo: string | null;
+        imageUrl: string | null;
+        tenantId: string;
     })[]>;
     findOne(tenantId: string, id: string): Promise<{
         ingredients: ({
             rawMaterial: {
                 id: string;
                 name: string;
+                tenantId: string;
+                categoryId: string;
                 unit: import("@prisma/client").$Enums.UnitType;
                 currentStock: number;
                 minStockAlert: number;
@@ -68,68 +70,66 @@ export declare class RecipesController {
                 replacementCost: number;
                 yieldPercentage: number;
                 shrinkagePercentage: number;
-                categoryId: string;
                 updatedAt: Date;
-                tenantId: string;
             } | null;
             subRecipe: {
                 id: string;
                 name: string;
-                tenantId: string;
-                type: import("@prisma/client").$Enums.RecipeType;
-                imageUrl: string | null;
                 description: string | null;
+                type: import("@prisma/client").$Enums.RecipeType;
                 genericCost: number;
                 nutritionalInfo: string | null;
+                imageUrl: string | null;
+                tenantId: string;
             } | null;
         } & {
             id: string;
-            unit: string;
-            rawMaterialId: string | null;
-            quantity: number;
             recipeId: string;
+            rawMaterialId: string | null;
             subRecipeId: string | null;
+            quantity: number;
+            unit: string;
         })[];
     } & {
         id: string;
         name: string;
-        tenantId: string;
-        type: import("@prisma/client").$Enums.RecipeType;
-        imageUrl: string | null;
         description: string | null;
+        type: import("@prisma/client").$Enums.RecipeType;
         genericCost: number;
         nutritionalInfo: string | null;
+        imageUrl: string | null;
+        tenantId: string;
     }>;
     calculateCost(tenantId: string, id: string): Promise<number>;
     consumeRecipe(tenantId: string, id: string): Promise<void>;
     create(tenantId: string, dto: CreateRecipeDto): Promise<{
         id: string;
         name: string;
-        tenantId: string;
-        type: import("@prisma/client").$Enums.RecipeType;
-        imageUrl: string | null;
         description: string | null;
+        type: import("@prisma/client").$Enums.RecipeType;
         genericCost: number;
         nutritionalInfo: string | null;
+        imageUrl: string | null;
+        tenantId: string;
     }>;
     update(tenantId: string, id: string, dto: Partial<CreateRecipeDto>): Promise<{
         id: string;
         name: string;
-        tenantId: string;
-        type: import("@prisma/client").$Enums.RecipeType;
-        imageUrl: string | null;
         description: string | null;
+        type: import("@prisma/client").$Enums.RecipeType;
         genericCost: number;
         nutritionalInfo: string | null;
+        imageUrl: string | null;
+        tenantId: string;
     }>;
     remove(tenantId: string, id: string): Promise<{
         id: string;
         name: string;
-        tenantId: string;
-        type: import("@prisma/client").$Enums.RecipeType;
-        imageUrl: string | null;
         description: string | null;
+        type: import("@prisma/client").$Enums.RecipeType;
         genericCost: number;
         nutritionalInfo: string | null;
+        imageUrl: string | null;
+        tenantId: string;
     }>;
 }

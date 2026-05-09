@@ -10,6 +10,7 @@ export declare class DashboardService {
         stockAlertsCount: number;
         stockAlerts: {
             id: string;
+            tenantId: string;
             name: string;
             unit: import("@prisma/client").$Enums.UnitType;
             currentStock: number;
@@ -20,7 +21,6 @@ export declare class DashboardService {
             shrinkagePercentage: number;
             categoryId: string;
             updatedAt: Date;
-            tenantId: string;
         }[];
         salesTrend: {
             date: string;
@@ -30,14 +30,18 @@ export declare class DashboardService {
         pendingOrdersCount: number;
     }>;
     getPublicMenu(slug: string): Promise<{
+        id: string;
+        tenantId: string;
         name: string;
-        logo: null;
+        logo: string | null;
+        bannerImage: string | null;
+        address: string | null;
         categories: {
             id: any;
             name: any;
             menuItems: any;
         }[];
-    } | null>;
+    }>;
     purgeData(tenantId: string): Promise<{
         success: boolean;
         message: string;

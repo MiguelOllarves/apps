@@ -46,13 +46,13 @@ async function bootstrap() {
     }
     app.useGlobalPipes(new common_1.ValidationPipe({ transform: true }));
     app.enableCors({
-        origin: 'http://localhost:3000',
+        origin: true,
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         credentials: true,
         allowedHeaders: 'Content-Type, Accept, Authorization, x-tenant-id',
     });
     app.useStaticAssets((0, path_1.join)(process.cwd(), 'public'));
-    await app.listen(process.env.PORT ?? 4000);
+    await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
     console.log(`Application is running on: http://localhost:4000`);
 }
 bootstrap();

@@ -8,8 +8,15 @@ const withPWA = withPWAInit({
   register: true,
 });
 
-const nextConfig: NextConfig = {
+const nextConfig: any = {
   outputFileTracingRoot: path.join(__dirname, "../../"),
+  webpack: (config: any) => {
+    config.watchOptions = {
+      ignored: ['**/node_modules', '**/System Volume Information'],
+    };
+    return config;
+  },
+  allowedDevOrigins: ['10.100.5.199', 'localhost', '127.0.0.1'],
 };
 
 export default withPWA(nextConfig);

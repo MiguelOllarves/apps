@@ -34,7 +34,7 @@ export default function InventoryPage() {
     }
     try {
       console.log('[Inventory] Fetching data for tenant:', tenantId, { hasToken: !!token });
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://10.100.5.199:4000';
       const [matRes, catRes] = await Promise.all([
         fetch(`${baseUrl}/materials`, { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } }),
         fetch(`${baseUrl}/categories`, { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } })
@@ -43,6 +43,8 @@ export default function InventoryPage() {
       if (matRes.ok) {
         setMaterials(await matRes.json());
         setError(null);
+      } else if (matRes.status === 401) {
+        setError('Sesión expirada. Por favor, re-inicia sesión.');
       } else {
         setError('Servidor no disponible');
       }
@@ -87,7 +89,7 @@ export default function InventoryPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('¿Estás seguro de eliminar este insumo?')) return;
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://10.100.5.199:4000';
       const res = await fetch(`${baseUrl}/materials/${id}`, {
         method: 'DELETE',
         headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` },
@@ -105,7 +107,7 @@ export default function InventoryPage() {
     if (!tenantId) return;
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://10.100.5.199:4000';
       const method = isEditing ? 'PATCH' : 'POST';
       const res = await fetch(isEditing ? `${baseUrl}/materials/${editingId}` : `${baseUrl}/materials`, {
         method,

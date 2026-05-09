@@ -17,7 +17,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: true, // Allow all origins for development
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization, x-tenant-id',
@@ -25,7 +25,7 @@ async function bootstrap() {
 
   app.useStaticAssets(join(process.cwd(), 'public'));
 
-  await app.listen(process.env.PORT ?? 4000);
+  await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
   console.log(`Application is running on: http://localhost:4000`);
 }
 bootstrap();

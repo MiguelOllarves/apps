@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 interface Props {
   tenantId: string;
@@ -13,13 +14,18 @@ interface Props {
 }
 
 export default function SimularVentaButton({ tenantId, userId, currencyId, menuItemId, menuItemName, price }: Props) {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const token = (session as any)?.accessToken || '';
+
 
   const handleSimularVenta = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://127.0.0.1:4000/orders', {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://10.100.5.199:4000';
+      const res = await fetch(`${baseUrl}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -51,7 +57,7 @@ export default function SimularVentaButton({ tenantId, userId, currencyId, menuI
   };
 
   return (
-    <button 
+    <button
       onClick={handleSimularVenta}
       disabled={loading}
       className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-xl shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center min-w-[150px] disabled:opacity-75 disabled:cursor-not-allowed"

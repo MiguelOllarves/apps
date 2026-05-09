@@ -37,13 +37,13 @@ export default function ProfilePage() {
     body.append('file', file);
 
     try {
-      const res = await fetch('http://127.0.0.1:4000/uploads/image', {
+      const res = await fetch('http://10.100.5.199:4000/uploads/image', {
         method: 'POST',
         body,
       });
       if (res.ok) {
         const data = await res.json();
-        const newUrl = `http://127.0.0.1:4000${data.url}`;
+        const newUrl = `http://10.100.5.199:4000${data.url}`;
         setAvatarUrl(newUrl);
         // alert('Avatar subido con éxito');
       }

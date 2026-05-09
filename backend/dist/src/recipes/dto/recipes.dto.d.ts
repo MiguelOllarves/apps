@@ -5,6 +5,7 @@ export declare class RecipeIngredientDto {
 }
 export declare class CreateRecipeDto {
     name: string;
+    description?: string;
     price: number;
     categoryId?: string;
     currencyId?: string;

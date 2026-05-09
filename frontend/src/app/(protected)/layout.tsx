@@ -26,7 +26,7 @@ export default function ProtectedLayout({
     const fetchData = async () => {
       if (!session) return;
       try {
-        const res = await fetch('http://127.0.0.1:4000/dashboard/metrics', {
+        const res = await fetch('http://10.100.5.199:4000/dashboard/metrics', {
           headers: { 
             'x-tenant-id': (session as any).tenantId,
             'Authorization': `Bearer ${(session as any).accessToken}`
@@ -46,7 +46,7 @@ export default function ProtectedLayout({
   useEffect(() => {
     const checkApi = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:4000/auth/login', { method: 'OPTIONS' });
+        const res = await fetch('http://10.100.5.199:4000/auth/login', { method: 'OPTIONS' });
         setIsApiDown(!res.ok && res.status !== 405); // 405 is fine for OPTIONS
       } catch (e) {
         setIsApiDown(true);

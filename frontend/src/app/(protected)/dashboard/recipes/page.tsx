@@ -57,7 +57,7 @@ export default function RecipesPage() {
     formPayload.append('file', file);
 
     try {
-      const res = await fetch('http://127.0.0.1:4000/api/uploads/image', {
+      const res = await fetch('http://10.100.5.199:4000/api/uploads/image', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formPayload,
@@ -131,15 +131,17 @@ export default function RecipesPage() {
     if (!tenantId || !session) return;
     try {
       const [recRes, matRes, curRes, catRes] = await Promise.all([
-        fetch('http://127.0.0.1:4000/recipes', { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:4000/materials', { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:4000/currencies', { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } }),
-        fetch('http://127.0.0.1:4000/categories', { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } })
+        fetch('http://10.100.5.199:4000/recipes', { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } }),
+        fetch('http://10.100.5.199:4000/materials', { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } }),
+        fetch('http://10.100.5.199:4000/currencies', { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } }),
+        fetch('http://10.100.5.199:4000/categories', { headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` } })
       ]);
 
       if (recRes.ok) {
         setRecipes(await recRes.json());
         setError(null);
+      } else if (recRes.status === 401) {
+        setError('Sesión expirada. Por favor, re-inicia sesión.');
       } else {
         setError('Servidor no disponible');
       }
@@ -195,14 +197,14 @@ export default function RecipesPage() {
         unit: ing.unit
       }))
     });
-    setPreviewUrl(recipe.imageUrl ? `http://127.0.0.1:4000${recipe.imageUrl}` : null);
+    setPreviewUrl(recipe.imageUrl ? `http://10.100.5.199:4000${recipe.imageUrl}` : null);
     setIsModalOpen(true);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Estás seguro de eliminar este plato?')) return;
     try {
-      const res = await fetch(`http://127.0.0.1:4000/recipes/${id}`, {
+      const res = await fetch(`http://10.100.5.199:4000/recipes/${id}`, {
         method: 'DELETE',
         headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` },
       });
@@ -221,7 +223,8 @@ export default function RecipesPage() {
     try {
       const usdCurrency = (currencies || []).find((c: any) => c.code === 'USD') || { id: 'usd-mock' };
 
-      const url = isEditing ? `http://127.0.0.1:4000/recipes/${editingId}` : 'http://127.0.0.1:4000/recipes';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://10.100.5.199:4000';
+      const url = isEditing ? `${baseUrl}/recipes/${editingId}` : `${baseUrl}/recipes`;
       const method = isEditing ? 'PATCH' : 'POST';
 
       const res = await fetch(url, {
@@ -288,7 +291,7 @@ export default function RecipesPage() {
                   <div className="w-16 h-16 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 overflow-hidden text-2xl">
                     {recipe.imageUrl ? (
                       <img
-                        src={recipe.imageUrl.startsWith('http') ? recipe.imageUrl : `http://127.0.0.1:4000${recipe.imageUrl}`}
+                        src={recipe.imageUrl.startsWith('http') ? recipe.imageUrl : `http://10.100.5.199:4000${recipe.imageUrl}`}
                         alt={recipe.name}
                         className="w-full h-full object-cover"
                       />
@@ -371,7 +374,7 @@ export default function RecipesPage() {
                           <img src={previewUrl} className="w-full h-full object-cover" />
                         ) : formData.imageUrl ? (
                           <img
-                            src={formData.imageUrl.startsWith('http') ? formData.imageUrl : `http://127.0.0.1:4000${formData.imageUrl}`}
+                            src={formData.imageUrl.startsWith('http') ? formData.imageUrl : `http://10.100.5.199:4000${formData.imageUrl}`}
                             className="w-full h-full object-cover"
                           />
                         ) : '📸'}

@@ -101,6 +101,8 @@ export class OrdersService {
   }
 
   async createPublicOrder(tenantId: string, data: CreatePublicOrderDto) {
+    if (!tenantId) throw new BadRequestException('ID de tenant no proporcionado.');
+    console.log('[Orders] Creating public order for tenant:', tenantId);
     const { customerName, customerPhone, customerAddress, items, tableNumber } = data;
 
     const customer = await this.prisma.customer.upsert({
@@ -125,6 +127,7 @@ export class OrdersService {
     const baseCurrency = await this.prisma.currency.findFirst({
       where: { tenantId, isBaseCurrency: true },
     });
+    console.log('[Orders] Base currency:', baseCurrency?.code, baseCurrency?.id);
 
     let totalAmount = 0;
     const orderItemsData = items.map((item) => {
@@ -140,60 +143,66 @@ export class OrdersService {
 
     totalAmount = Math.round(totalAmount * 100) / 100;
 
-    const order = await this.prisma.order.create({
-      data: {
-        tenantId,
-        customerId: customer.id,
-        type: tableNumber ? 'DINE_IN' : 'DELIVERY',
-        tableNumber: tableNumber?.toString(),
-        currencyId: baseCurrency?.id || 'USD',
-        totalAmount,
-        status: 'PENDING',
-        items: {
-          create: orderItemsData,
-        },
-      },
-      include: {
-        items: { include: { menuItem: { include: { recipe: true } } } },
-        tenant: true
-      },
-    });
-
-    // --- Notificación WhatsApp Automática ---
     try {
-      const adminPhone = order.tenant.whatsapp || 'ADMIN_PHONE';
-      const itemsList = order.items
-        .map((item: any) => `• ${item.quantity}x ${item.menuItem.recipe.name}`)
-        .join('\n');
-
-      const messageToAdmin = [
-        `🔔 *¡NUEVO PEDIDO RECIBIDO!*`,
-        ``,
-        `📍 *Cliente:* ${customerName}`,
-        `📞 *Teléfono:* ${customerPhone}`,
-        `🏠 *Ubicación:* ${customerAddress || 'En local'}`,
-        `🍴 *Tipo:* ${tableNumber ? `Mesa ${tableNumber}` : 'Delivery'}`,
-        ``,
-        `📦 *Detalle:*`,
-        itemsList,
-        ``,
-        `💰 *Total:* $${totalAmount.toFixed(2)}`,
-        `👉 _Ver en ControlTotal: http://localhost:3000/dashboard/pos_`,
-      ].join('\n');
-
-      // Notificar al Admin del restaurante
-      this.whatsappService.sendOrderConfirmation(adminPhone, order.id, 'ADMIN_REPORT').then(() => {
-        console.log(`[WhatsApp] Alerta de pedido ${order.id} enviada al admin.`);
+      const order = await this.prisma.order.create({
+        data: {
+          tenantId,
+          customerId: customer.id,
+          type: tableNumber ? 'DINE_IN' : 'DELIVERY',
+          tableNumber: tableNumber?.toString(),
+          currencyId: baseCurrency?.id || 'USD',
+          totalAmount,
+          status: 'PENDING',
+          items: {
+            create: orderItemsData,
+          },
+        },
+        include: {
+          items: { include: { menuItem: { include: { recipe: true } } } },
+          tenant: true
+        },
       });
+      console.log('[Orders] Order created successfully:', order.id);
 
-      // Notificar al Cliente (Confirmación)
-      this.whatsappService.sendOrderConfirmation(customerPhone, order.id, customerName);
+      // --- Notificación WhatsApp Automática ---
+      try {
+        const adminPhone = order.tenant.whatsapp || 'ADMIN_PHONE';
+        const itemsList = order.items
+          .map((item: any) => `• ${item.quantity}x ${item.menuItem.recipe.name}`)
+          .join('\n');
 
-    } catch (error) {
-      console.error('[WhatsApp] Error disparando notificaciones:', error);
+        const messageToAdmin = [
+          `🔔 *¡NUEVO PEDIDO RECIBIDO!*`,
+          ``,
+          `📍 *Cliente:* ${customerName}`,
+          `📞 *Teléfono:* ${customerPhone}`,
+          `🏠 *Ubicación:* ${customerAddress || 'En local'}`,
+          `🍴 *Tipo:* ${tableNumber ? `Mesa ${tableNumber}` : 'Delivery'}`,
+          ``,
+          `📦 *Detalle:*`,
+          itemsList,
+          ``,
+          `💰 *Total:* $${totalAmount.toFixed(2)}`,
+          `👉 _Ver en ControlTotal: http://localhost:3000/dashboard/pos_`,
+        ].join('\n');
+
+        // Notificar al Admin del restaurante
+        this.whatsappService.sendOrderConfirmation(adminPhone, order.id, 'ADMIN_REPORT').then(() => {
+          console.log(`[WhatsApp] Alerta de pedido ${order.id} enviada al admin.`);
+        });
+
+        // Notificar al Cliente (Confirmación)
+        this.whatsappService.sendOrderConfirmation(customerPhone, order.id, customerName);
+
+      } catch (error) {
+        console.error('[WhatsApp] Error disparando notificaciones:', error);
+      }
+
+      return order;
+    } catch (dbError) {
+      console.error('[Orders] Database error creating order:', dbError);
+      throw new BadRequestException(`Error al procesar la orden: ${dbError.message || 'Error de base de datos'}`);
     }
-
-    return order;
   }
 
   async getCustomerHistory(tenantId: string, userId: string) {
@@ -209,7 +218,17 @@ export class OrdersService {
       where: { tenantId },
       orderBy: { createdAt: 'desc' },
       take: limit ? Number(limit) : undefined,
-      include: { user: true },
+      include: {
+        user: true,
+        customer: true,
+        items: {
+          include: {
+            menuItem: {
+              include: { recipe: true }
+            }
+          }
+        }
+      },
     });
   }
 

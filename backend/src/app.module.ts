@@ -16,16 +16,17 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { AuditModule } from './audit/audit.module';
 import { PublicMenuModule } from './public-menu/public-menu.module';
+import { TenantsModule } from './tenants/tenants.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TenantGuard } from './auth/tenant.guard';
 import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
-    PrismaModule, 
-    CategoriesModule, 
-    MaterialsModule, 
-    InventoryModule, 
+    PrismaModule,
+    CategoriesModule,
+    MaterialsModule,
+    InventoryModule,
     RecipesModule,
     OrdersModule,
     CustomersModule,
@@ -35,7 +36,8 @@ import { RolesGuard } from './auth/roles.guard';
     DashboardModule,
     UploadsModule,
     AuditModule,
-    PublicMenuModule
+    PublicMenuModule,
+    TenantsModule
   ],
   controllers: [AppController],
   providers: [
@@ -54,4 +56,4 @@ import { RolesGuard } from './auth/roles.guard';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

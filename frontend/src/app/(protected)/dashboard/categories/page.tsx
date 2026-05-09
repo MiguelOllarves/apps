@@ -19,7 +19,7 @@ export default function CategoriesPage() {
   const fetchCategories = async () => {
     if (!tenantId) return;
     try {
-      const res = await fetch('http://127.0.0.1:4000/categories', {
+      const res = await fetch('http://10.100.5.199:4000/categories', {
         headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` }
       });
       if (res.ok) setCategories(await res.json());
@@ -43,7 +43,7 @@ export default function CategoriesPage() {
 
     try {
       console.log('[Categories] Creating category:', formData);
-      const res = await fetch('http://127.0.0.1:4000/categories', {
+      const res = await fetch('http://10.100.5.199:4000/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` },
         body: JSON.stringify(formData),
@@ -66,7 +66,7 @@ export default function CategoriesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('¿Seguro que desea eliminar esta categoría?')) return;
     try {
-      await fetch(`http://127.0.0.1:4000/categories/${id}`, {
+      await fetch(`http://10.100.5.199:4000/categories/${id}`, {
         method: 'DELETE',
         headers: { 'x-tenant-id': tenantId, Authorization: `Bearer ${token}` }
       });

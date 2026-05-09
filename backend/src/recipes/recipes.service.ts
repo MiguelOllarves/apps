@@ -186,7 +186,7 @@ export class RecipesService {
   }
 
   async update(tenantId: string, id: string, data: Partial<CreateRecipeDto>) {
-    const { name, price, ingredients, categoryId, currencyId, imageUrl } = data;
+    const { name, price, ingredients, categoryId, currencyId, imageUrl, description } = data;
 
     const recipe = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Update Recipe basic info
@@ -194,6 +194,7 @@ export class RecipesService {
         where: { id, tenantId },
         data: {
           name: name,
+          description: description,
           imageUrl: imageUrl,
         },
       });

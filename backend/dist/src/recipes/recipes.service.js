@@ -158,12 +158,13 @@ let RecipesService = class RecipesService {
         return recipe;
     }
     async update(tenantId, id, data) {
-        const { name, price, ingredients, categoryId, currencyId, imageUrl } = data;
+        const { name, price, ingredients, categoryId, currencyId, imageUrl, description } = data;
         const recipe = await this.prisma.$transaction(async (tx) => {
             const updatedRecipe = await tx.recipe.update({
                 where: { id, tenantId },
                 data: {
                     name: name,
+                    description: description,
                     imageUrl: imageUrl,
                 },
             });

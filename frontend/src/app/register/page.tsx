@@ -19,7 +19,7 @@ export default function RegisterPage() {
     setError('');
     
     try {
-      const res = await fetch('http://127.0.0.1:4000/auth/register', {
+      const res = await fetch('http://10.100.5.199:4000/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

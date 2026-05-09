@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { Prisma } from '@prisma/client';
@@ -120,11 +120,15 @@ export class DashboardService {
       }
     });
 
-    if (!tenant) return null;
+    if (!tenant) throw new NotFoundException('Restaurante no encontrado');
 
     return {
+      id: tenant.id,
+      tenantId: tenant.id,
       name: tenant.name,
-      logo: null,
+      logo: tenant.logo,
+      bannerImage: tenant.bannerImage,
+      address: tenant.address,
       categories: tenant.categories.map((cat: any) => ({
         id: cat.id,
         name: cat.name,

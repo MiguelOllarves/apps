@@ -18,7 +18,7 @@ export default function PublicMenuPage() {
     const [orderStatus, setOrderStatus] = useState<'IDLE' | 'SENDING' | 'SUCCESS' | 'ERROR'>('IDLE');
 
     useEffect(() => {
-        fetch(`http://127.0.0.1:4000/public-menu/${slug}`)
+        fetch(`http://10.100.5.199:4000/public-menu/${slug}`)
             .then(res => res.json())
             .then(d => {
                 setData(d);
@@ -46,7 +46,7 @@ export default function PublicMenuPage() {
         e.preventDefault();
         setOrderStatus('SENDING');
         try {
-            const res = await fetch('http://127.0.0.1:4000/orders/public', {
+            const res = await fetch('http://10.100.5.199:4000/orders/public', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

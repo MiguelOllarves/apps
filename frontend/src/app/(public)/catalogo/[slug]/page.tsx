@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import ProductCarousel from '@/components/ProductCarousel';
 
 export default function PublicCatalogPage() {
   const params = useParams();
@@ -33,7 +34,7 @@ export default function PublicCatalogPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch('http://127.0.0.1:4000/orders/public', {
+      const res = await fetch('http://10.100.5.199:4000/orders/public', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,9 +66,10 @@ export default function PublicCatalogPage() {
       try {
         // En una app SaaS real, buscaríamos el tenant por slug
         // Para este MVP, usaremos un endpoint que devuelva el catálogo público del tenant
-        const res = await fetch(`http://127.0.0.1:4000/dashboard/public-menu/${slug}`);
-        if (res.ok) {
-          setMenuData(await res.json());
+        const res = await fetch(`http://10.100.5.199:4000/dashboard/public-menu/${slug}`);
+        if (res.ok && res.status !== 204) {
+          const text = await res.text();
+          if (text) setMenuData(JSON.parse(text));
         }
       } catch (e) {
         console.error('Error fetching menu', e);
@@ -97,10 +99,11 @@ export default function PublicCatalogPage() {
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 pb-20 overflow-x-hidden">
       {/* Hero Section */}
+      {/* Hero Section */}
       <div className="relative h-64 md:h-80 bg-slate-900 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent z-10"></div>
-        {menuData.businessCover ? (
-          <img src={menuData.businessCover} className="absolute inset-0 w-full h-full object-cover opacity-60" alt="Cover" />
+        {menuData.bannerImage ? (
+          <img src={`http://10.100.5.199:4000${menuData.bannerImage}`} className="absolute inset-0 w-full h-full object-cover opacity-60" alt="Cover" />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 opacity-40"></div>
         )}
@@ -108,7 +111,7 @@ export default function PublicCatalogPage() {
         <div className="relative z-20 text-center px-6">
           <div className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-[2rem] p-2 shadow-2xl mx-auto mb-4 border-4 border-white overflow-hidden">
             {menuData.logo ? (
-              <img src={`http://127.0.0.1:4000${menuData.logo}`} className="w-full h-full object-contain" alt="Logo" />
+              <img src={`http://10.100.5.199:4000${menuData.logo}`} className="w-full h-full object-contain" alt="Logo" />
             ) : (
               <div className="w-full h-full bg-slate-100 flex items-center justify-center text-4xl font-black text-blue-600">
                 {menuData.name.charAt(0)}
@@ -139,42 +142,45 @@ export default function PublicCatalogPage() {
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-blue-600 rounded-full"></div>
               </h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-              {cat.menuItems.map((item: any) => (
-                <div key={item.id} className="group bg-white rounded-[2.5rem] p-6 shadow-xl shadow-slate-200/60 border border-slate-100 flex flex-col items-center text-center hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                  <div className="w-full aspect-square bg-slate-50 rounded-[2rem] overflow-hidden mb-6 shadow-inner relative">
-                    {item.recipe?.imageUrl ? (
-                      <img
-                        src={item.recipe.imageUrl.startsWith('http') ? item.recipe.imageUrl : `http://127.0.0.1:4000${item.recipe.imageUrl}`}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        alt={item.recipe?.name}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-5xl opacity-20">
-                        🍽️
+            <div className="w-full">
+              <ProductCarousel
+                items={cat.menuItems}
+                renderItem={(item: any) => (
+                  <div key={item.id} className="group bg-white rounded-[2.5rem] p-6 shadow-xl shadow-slate-200/60 border border-slate-100 flex flex-col items-center text-center hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-full">
+                    <div className="w-full aspect-square bg-slate-50 rounded-[2rem] overflow-hidden mb-6 shadow-inner relative">
+                      {item.recipe?.imageUrl ? (
+                        <img
+                          src={item.recipe.imageUrl.startsWith('http') ? item.recipe.imageUrl : `http://10.100.5.199:4000${item.recipe.imageUrl}`}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          alt={item.recipe?.name}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-5xl opacity-20">
+                          🍽️
+                        </div>
+                      )}
+                      <div className="absolute top-4 right-4">
+                        <span className="bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] px-3 py-1.5 rounded-full font-black uppercase tracking-widest shadow-sm">Premium</span>
                       </div>
-                    )}
-                    <div className="absolute top-4 right-4">
-                      <span className="bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] px-3 py-1.5 rounded-full font-black uppercase tracking-widest shadow-sm">Premium</span>
+                    </div>
+
+                    <h3 className="font-black text-slate-800 text-xl leading-tight mb-2">{item.recipe?.name}</h3>
+                    <p className="text-sm font-medium text-slate-400 mb-6 flex-1 leading-relaxed">
+                      {item.recipe?.description || 'Preparado con ingredientes frescos de la mejor calidad seleccionados por nuestro chef.'}
+                    </p>
+
+                    <div className="w-full pt-6 border-t border-slate-50 flex flex-col gap-4">
+                      <span className="font-black text-blue-600 text-2xl tracking-tight">${item.price.toFixed(2)}</span>
+                      <button
+                        onClick={() => addToCart(item)}
+                        className="w-full py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-blue-600 transition-all active:scale-95 shadow-lg shadow-blue-200"
+                      >
+                        Añadir a la Orden
+                      </button>
                     </div>
                   </div>
-
-                  <h3 className="font-black text-slate-800 text-xl leading-tight mb-2">{item.recipe?.name}</h3>
-                  <p className="text-sm font-medium text-slate-400 mb-6 flex-1 leading-relaxed">
-                    {item.recipe?.description || 'Preparado con ingredientes frescos de la mejor calidad seleccionados por nuestro chef.'}
-                  </p>
-
-                  <div className="w-full pt-6 border-t border-slate-50 flex flex-col gap-4">
-                    <span className="font-black text-blue-600 text-2xl tracking-tight">${item.price.toFixed(2)}</span>
-                    <button
-                      onClick={() => addToCart(item)}
-                      className="w-full py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-blue-600 transition-all active:scale-95 shadow-lg shadow-blue-200"
-                    >
-                      Añadir a la Orden
-                    </button>
-                  </div>
-                </div>
-              ))}
+                )}
+              />
             </div>
           </section>
         ))}

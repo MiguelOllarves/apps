@@ -114,10 +114,14 @@ let DashboardService = class DashboardService {
             }
         });
         if (!tenant)
-            return null;
+            throw new common_1.NotFoundException('Restaurante no encontrado');
         return {
+            id: tenant.id,
+            tenantId: tenant.id,
             name: tenant.name,
-            logo: null,
+            logo: tenant.logo,
+            bannerImage: tenant.bannerImage,
+            address: tenant.address,
             categories: tenant.categories.map((cat) => ({
                 id: cat.id,
                 name: cat.name,

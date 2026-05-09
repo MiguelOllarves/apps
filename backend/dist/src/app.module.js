@@ -25,6 +25,7 @@ const dashboard_module_1 = require("./dashboard/dashboard.module");
 const uploads_module_1 = require("./uploads/uploads.module");
 const audit_module_1 = require("./audit/audit.module");
 const public_menu_module_1 = require("./public-menu/public-menu.module");
+const tenants_module_1 = require("./tenants/tenants.module");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 const tenant_guard_1 = require("./auth/tenant.guard");
 const roles_guard_1 = require("./auth/roles.guard");
@@ -47,7 +48,8 @@ exports.AppModule = AppModule = __decorate([
             dashboard_module_1.DashboardModule,
             uploads_module_1.UploadsModule,
             audit_module_1.AuditModule,
-            public_menu_module_1.PublicMenuModule
+            public_menu_module_1.PublicMenuModule,
+            tenants_module_1.TenantsModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [

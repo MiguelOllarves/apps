@@ -21,6 +21,10 @@ export class CreateRecipeDto {
   @IsNotEmpty()
   name: string;
 
+  @IsString()
+  @IsOptional()
+  description?: string;
+
   @IsNumber()
   @Min(0)
   @Type(() => Number)
